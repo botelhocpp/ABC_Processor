@@ -25,8 +25,10 @@ ARCHITECTURE RTL OF ControlUnit IS
     TYPE t_InstructionCycle IS (
         s_FETCH_INSTRUCTION,
         s_STORE_INSTRUCTION,
+        s_DECODE_INSTRUCTION,
         s_FETCH_OPERAND,
-        s_STORE_RESULT
+        s_STORE_RESULT,
+        s_HALT
     );
     SIGNAL r_Current_State : t_InstructionCycle := s_FETCH_INSTRUCTION;
 
@@ -45,21 +47,25 @@ BEGIN
                     r_Current_State <= s_STORE_INSTRUCTION;
 
                 WHEN s_STORE_INSTRUCTION =>
-                    IF(
-                        w_Operation = op_ADD OR w_Operation = op_SUB OR
-                        w_Operation = op_AND OR w_Operation = op_LOAD
-                    ) THEN
-                        r_Current_State <= s_FETCH_OPERAND;
-                    ELSE
-                        r_Current_State <= s_STORE_RESULT;
-                    END IF;
-                    
+                    r_Current_State <= s_DECODE_INSTRUCTION;
+                
+                WHEN s_DECODE_INSTRUCTION =>
+                    CASE w_Operation IS
+                        WHEN op_ADD | op_SUB | op_AND | op_LOAD =>
+                            r_Current_State <= s_FETCH_OPERAND;
+                        WHEN op_HALT =>
+                            r_Current_State <= s_HALT;
+                        WHEN OTHERS =>
+                            r_Current_State <= s_STORE_RESULT;
+                    END CASE;
+
                 WHEN s_FETCH_OPERAND =>
                     r_Current_State <= s_STORE_RESULT;
                 
                 WHEN s_STORE_RESULT =>
                     r_Current_State <= s_FETCH_INSTRUCTION;
                 
+                WHEN OTHERS =>
             END CASE;
         END IF;
     END PROCESS p_INSTRUCTION_CYCLE_NEXT_STATE;
@@ -107,6 +113,7 @@ BEGIN
                     WHEN OTHERS =>
                 END CASE;
 
+            WHEN OTHERS =>
         END CASE;
     END PROCESS p_INSTRUCTION_CYCLE_GENERATE_SIGNALS;
 END ARCHITECTURE;

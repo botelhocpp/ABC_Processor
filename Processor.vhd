@@ -44,8 +44,8 @@ BEGIN
     );
     e_ALU: ENTITY WORK.ArithmeticLogicUnit
     PORT MAP(
-        i_Op_A      => io_Data,
-        i_Op_B      => w_Ac_Data,
+        i_Op_A      => w_Ac_Data,
+        i_Op_B      => io_Data,
         i_Sel       => a_Opcode,
         o_Zero      => w_Zero,
         o_Result    => w_Alu_Bus

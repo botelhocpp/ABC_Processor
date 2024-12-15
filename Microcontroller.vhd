@@ -14,8 +14,6 @@ PORT (
 END ENTITY;
 
 ARCHITECTURE Structural OF Microcontroller IS
-    SIGNAL w_Clk : STD_LOGIC := '0';
-
     -- Wires
     SIGNAL w_Address                : STD_LOGIC_VECTOR(c_ADDRESS_SIZE - 1 DOWNTO 0) := (OTHERS => '0');
     SIGNAL w_Memory_Bus             : t_Reg8 := (OTHERS => '0');
@@ -28,7 +26,7 @@ ARCHITECTURE Structural OF Microcontroller IS
 BEGIN
     e_PROCESSOR: ENTITY WORK.processor
     PORT MAP ( 
-        i_Clk           => w_Clk,
+        i_Clk           => i_Clk,
         i_Rst           => i_Rst,
         o_Write_Enable  => w_Write_Enable,
         o_Output_Enable => w_Output_Enable,
@@ -40,7 +38,7 @@ BEGIN
         i_Address       => w_Address,
         i_Write_Enable  => w_Memory_Write_Enable,
         i_Output_Enable => w_Memory_Output_Enable,
-        i_Clk           => w_Clk,
+        i_Clk           => i_Clk,
         io_Data         => w_Memory_Bus
     );
     e_IO_MODULE: ENTITY WORK.InputOutputModule
@@ -48,7 +46,7 @@ BEGIN
         i_Address       => w_Address, 
         i_Write_Enable  => w_IO_Write_Enable, 
         i_Output_Enable => w_IO_Output_Enable,
-        i_Clk           => w_Clk, 
+        i_Clk           => i_Clk, 
         i_Rst           => i_Rst,
         i_Buttons       => i_Buttons,
         o_Leds          => o_Leds, 
@@ -57,21 +55,21 @@ BEGIN
 
     w_Memory_Write_Enable <= '1' WHEN (
         w_Write_Enable = '1' AND
-        w_Address >= x"0010"
+        w_Address < "11110"
     ) ELSE '0';
     
     w_IO_Write_Enable <= '1' WHEN (
         w_Write_Enable = '1' AND
-        w_Address < x"0010"
+        w_Address >= "11110"
     ) ELSE '0';
 
     w_Memory_Output_Enable <= '1' WHEN (
         w_Output_Enable = '1' AND
-        w_Address >= x"0010"
+        w_Address < "11110"
     ) ELSE '0';
     
     w_IO_Output_Enable <= '1' WHEN (
         w_Output_Enable = '1' AND
-        w_Address < x"0010"
+        w_Address >= "11110"
     ) ELSE '0';
 END ARCHITECTURE;

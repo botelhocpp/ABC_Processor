@@ -19,17 +19,19 @@ PORT (
 END ENTITY;
 
 ARCHITECTURE RTL OF InputOutputModule IS 
-    CONSTANT c_BUTTONS_ADDRESS : INTEGER := 0;
-    CONSTANT c_LEDS_ADDRESS : INTEGER := 1;
+    CONSTANT c_BUTTONS_ADDRESS : INTEGER := 30;
+    CONSTANT c_LEDS_ADDRESS : INTEGER := 31;
     
-    TYPE t_IORegisterArray IS ARRAY (0 TO 15) OF t_Reg8; 
+    TYPE t_IORegisterArray IS ARRAY (0 TO 31) OF t_Reg8; 
     SIGNAL r_IO_Registers : t_IORegisterArray := (OTHERS => (OTHERS => '0'));
 
     SIGNAL r_Leds : STD_LOGIC_VECTOR(3 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL r_Data_Out : t_Reg8 := (OTHERS => '0');
     
-    SIGNAL w_Address : INTEGER RANGE 0 TO 15 := 0;
+    SIGNAL w_Address : INTEGER RANGE 0 TO 31 := 0;
 BEGIN 
     o_Leds <= r_Leds;
+    io_Data <= r_Data_Out WHEN (i_Output_Enable = '1') ELSE (OTHERS => 'Z');
     
     w_Address <= TO_INTEGER(UNSIGNED(i_Address));
 
@@ -40,20 +42,19 @@ BEGIN
             r_IO_Registers <= (
                 (OTHERS => (OTHERS => '0'))
             );
+            r_Data_Out <= (OTHERS => '0');
         ELSIF(RISING_EDGE(i_Clk)) THEN
             r_IO_Registers(c_BUTTONS_ADDRESS)(3 DOWNTO 0) <= i_Buttons;
             
             IF(w_Address < 16) THEN
                 IF(
                     i_Write_Enable = '1' AND 
-                    i_Address /= t_Reg8(TO_UNSIGNED(c_BUTTONS_ADDRESS, i_Address'LENGTH))
+                    w_Address /= c_BUTTONS_ADDRESS
                 ) THEN
                     r_IO_Registers(w_Address) <= io_Data;
-                ELSIF(i_Output_Enable = '1') THEN
-                    io_Data <= r_IO_Registers(w_Address);
-                ELSE
-                    io_Data <= (OTHERS => 'Z');
                 END IF;
+                
+                r_Data_Out <= r_IO_Registers(w_Address);
             END IF;
         END IF;
     END PROCESS p_REGISTERS_READ_WRITE_CONTROL;

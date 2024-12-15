@@ -14,7 +14,7 @@ PACKAGE ProcessorPkg is
     SUBTYPE t_UReg8 IS UNSIGNED(c_WORD_SIZE - 1 DOWNTO 0);
     SUBTYPE t_SReg8 IS SIGNED(c_WORD_SIZE - 1 DOWNTO 0);
     
-    CONSTANT c_PC_INIT_VALUE : t_Reg8 := x"0002";
+    CONSTANT c_PC_INIT_VALUE : t_Reg8 := x"02";
 
     TYPE t_Operation IS (
         op_ADD,

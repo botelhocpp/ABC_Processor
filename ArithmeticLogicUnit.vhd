@@ -29,8 +29,8 @@ BEGIN
         w_Result <= (w_Op_A + w_Op_B)   WHEN "000",
                     (w_Op_A - w_Op_B)   WHEN "001",
                     (w_Op_A AND w_Op_B) WHEN "010",
-                    (w_Op_A)            WHEN "011",
-                    (w_Op_B)            WHEN OTHERS;
+                    (w_Op_B)            WHEN "011",
+                    (w_Op_A)            WHEN OTHERS;
 
     o_Result <= t_Reg8(w_Result);
 
